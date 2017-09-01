@@ -3,6 +3,7 @@
 # Import functions from parser.py file for parsing the graph text files
 # into networkx graph data structures
 import graphParser
+import sys
 
 # networkx graph, search function -> queue
 # Takes in a networkx graph and a search function and
@@ -10,7 +11,7 @@ import graphParser
 # returns the solution if 'G' was found
 #
 # A general search method to be called by all specific search methods
-def General_Search(graph, search_method):
+def General_Search(graph, heuristics, search_method):
     # Initialize the queue with 'S' (Assume 'S' is always in the queue)
     queue = [['S']]
     # Loop
@@ -30,10 +31,10 @@ def General_Search(graph, search_method):
         # Expand the current node to it's neighboring nodes
         opened_nodes = graph.neighbors(node)
         # Reset the queue based on the search method input
-        queue = search_method(opened_nodes, queue)
+        queue = search_method(opened_nodes, queue, heuristics)
 
 # Depth 1st search method
-def depthFirst(neighbors, queue):
+def depthFirst(neighbors, queue, heuristics):
     print(queue)
     # enqueue to front
     newQueue = []
@@ -49,7 +50,7 @@ def depthFirst(neighbors, queue):
     return newQueue
 
 # Breadth 1st search method
-def breadthFirst(neighbors, queue):
+def breadthFirst(neighbors, queue, heuristics):
     # enqueue to end
     print(queue)
     newQueue = []
@@ -64,7 +65,27 @@ def breadthFirst(neighbors, queue):
         newQueue.append(tempQueue)
     return newQueue
 
+def greedySearch(neighbors, queue, heuristics):
+    #
+    print(queue)
+    newQueue = []
+    neighbors.sort()
+    print(neighbors)
+
+    lowest = ("", -1)
+
+    for n in neighbors:
+        if n in queue[0]:
+            continue
+        print(lowest[1])
+        if float(heuristics[n]) < lowest[1] or lowest[1] < 0:
+            lowest = (n, float(heuristics[n]))
+
+    print (lowest)
+    return newQueue
+
 # Testing general search method
 graph = graphParser.build_graph('graph.txt')
-General_Search(graph[0], depthFirst)
-General_Search(graph[0], breadthFirst)
+General_Search(graph[0], graph[1], depthFirst)
+General_Search(graph[0], graph[1], breadthFirst)
+#General_Search(graph[0], graph[1], greedySearch)
