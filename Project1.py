@@ -11,7 +11,7 @@ import sys
 # returns the solution if 'G' was found
 #
 # A general search method to be called by all specific search methods
-def General_Search(graph, heuristics, search_method):
+def General_Search(graph_data, search_method):
     # Initialize the queue with 'S' (Assume 'S' is always in the queue)
     queue = [['S']]
     # Loop
@@ -29,7 +29,10 @@ def General_Search(graph, heuristics, search_method):
             print("goal reached!")
             return queue[0]
         # Expand the current node to it's neighboring nodes
-        opened_nodes = graph.neighbors(node)
+        opened_nodes = graph_data[0].neighbors(node)
+
+        heuristics = graph[1]
+
         # Reset the queue based on the search method input
         queue = search_method(opened_nodes, queue, heuristics)
 
@@ -86,6 +89,6 @@ def greedySearch(neighbors, queue, heuristics):
 
 # Testing general search method
 graph = graphParser.build_graph('graph.txt')
-General_Search(graph[0], graph[1], depthFirst)
-General_Search(graph[0], graph[1], breadthFirst)
-#General_Search(graph[0], graph[1], greedySearch)
+General_Search(graph, depthFirst)
+General_Search(graph, breadthFirst)
+#General_Search(graph, greedySearch)
