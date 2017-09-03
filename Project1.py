@@ -4,6 +4,7 @@
 # into networkx graph data structures
 import graphParser
 import sys
+import operator
 
 
 
@@ -69,7 +70,7 @@ def call_search_method(search_method,neighbors,queue,heuristics,limit):
         return search_methods[3](neighbors,queue,limit)
     
     elif search_method == "iterativeDeepening":
-        return search_methods[4](neighbors,queue,limit)
+        return search_methods[4](neighbors,queue)
     
     elif search_method == "uniformCost":
         return search_methods[5](neighbors,queue)
@@ -81,7 +82,7 @@ def call_search_method(search_method,neighbors,queue,heuristics,limit):
         return search_methods[7](neighbors,queue)
     
     elif search_method == "hillClimbing":
-        return search_methods[8](neighbors,queue)
+        return search_methods[8](neighbors,queue,heuristics)
     
     elif search_method == "beamSearch":
         return search_methods[9](neighbors,queue)
@@ -160,7 +161,7 @@ def depthLimited(neighbors, queue,limit):
     return newQueue
 
 #similar to depthLimited
-def iterativeDeepening(neighbors,queue,new_limit):
+def iterativeDeepening(neighbors,queue):
     #return search_methods[3](neighbors,queue,limit)
     running = True
     new_limit2 = 1
@@ -176,8 +177,28 @@ def uniformCost(neighbors,queue):
     print(1)
 def aStar(neighbors,queue):
     print(1)
-def hillClimbing(neighbors,queue):
-    print(1)
+
+#implemented the version with no backtracking as requested by the instructions
+def hillClimbing(neighbors,queue,heuristics):
+    # enqueue to front
+    newQueue = []
+    neighbors.sort()
+    neighborsVal = {}
+    for n in neighbors:
+        if n == 'G':
+            neighborsVal[n] = 0
+        else:
+            neighborsVal[n] = float(heuristics[n])
+        if n in queue[0]:
+            continue
+    sorted_neighbors = sorted(neighborsVal.items(), key=operator.itemgetter(1))
+    #print("so nei : ",sorted_neighbors)
+    tempQueue = []
+    tempQueue.append(sorted_neighbors[0][0])
+    tempQueue.extend(queue[0])
+    newQueue.append(tempQueue)
+    return newQueue
+
 def beamSearch(neighbors,queue):
     print(1)
 
@@ -203,5 +224,7 @@ graph = graphParser.build_graph('graph.txt')
 #General_Search(graph, "breadthFirst")
 #General_Search(graph, "greedySearch")
 #General_Search(graph, "depthLimited",limit = 3)
-General_Search(graph, "iterativeDeepening")
+#General_Search(graph, "iterativeDeepening")
+General_Search(graph, "hillClimbing")
+
 
