@@ -1,15 +1,40 @@
+# Project 1 | CS4341 | A-Term (Fall 2017) | Prof. Carolina Ruiz | Worcester Polytechnic Institute
+#
+# This program uses a number of search algorithms to process an input graph data structure.
+#
+# @author Chad Underhill, Daniel Kim, Spiros Antonatos
+# @since 9/5/2017
+
+
 import graphParser
 
+# This function provides a general search structure for both informed and
+#   uninformed search algorithms, using a "queue" as specified in the 
+#   project instructions.
+# @param graph_data     Pre-parsed graph following the NetworkX structure
+# @param search_method  The search algorithm to follow
+# @param params         Additional parameters
+# @return queue         The queue processed by the chosen search algorithm
+#
 def General_Search(graph_data, search_method, params = {}):
-    output = []
+    # Make queue and initialize to start node
     queue = [{'path':['S'], 'h':11}]
+
     while(True):
         if len(queue) == 0:
             return []
+
+        # Set current node to front of queue
         node = queue[0]['path'][0]
+
+        # Return queue if goal reached
         if node == 'G':
             return queue
+
+        # Determine nodes to expand from current node
         opened_nodes = graph_data[0].neighbors(node)
+
+        # Execute search algorithm and update the queue
         queue = search_method(opened_nodes, queue, graph_data, params)
 
 # Depth 1st search method
