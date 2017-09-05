@@ -8,13 +8,14 @@
 
 import graphParser
 
+
 # This function provides a general search structure for both informed and
 #   uninformed search algorithms, using a "queue" as specified in the 
 #   project instructions.
 # @param graph_data     Pre-parsed graph following the NetworkX structure
 # @param search_method  The search algorithm to follow
 # @param params         Additional parameters
-# @return queue         The queue processed by the chosen search algorithm
+# @return queue         The queue of explored paths processed by the search algorithm
 #
 def General_Search(graph_data, search_method, params = {}):
     # Make queue and initialize to start node
@@ -32,63 +33,117 @@ def General_Search(graph_data, search_method, params = {}):
             return queue
 
         # Determine nodes to expand from current node
-        opened_nodes = graph_data[0].neighbors(node)
+        opened_nodes = graph_data[0].neighbors(node).sort()
 
         # Execute search algorithm and update the queue
         queue = search_method(opened_nodes, queue, graph_data, params)
 
-# Depth 1st search method
+
+# This function executes the Depth-First Search algorithm on a provided graph
+# @param neighbors      A list of the expanded node's immediate neighbors
+# @param queue          The current queue of explored paths
+# @param graph_data     Pre-parsed graph following the NetworkX structure
+# @param params         Additional parameters
+# @return newQueue      The updated queue of explored paths processed by the search algorithm
+#
 def depthFirst(neighbors, queue, graph_data, params):
-    # enqueue to front
     newQueue = []
-    neighbors.sort()
+
     for n in neighbors:
+        # Check if neighbor has already been visited
         if n in queue[0]['path']:
             continue
+
+        # Add node to path list
         tempQueue = []
         tempQueue.append(n)
         tempQueue.extend(queue[0]['path'])
+
+        # Add path to front of queue of explored paths
         newQueue.append({'path':tempQueue, 'h':0})
+
+    # Add remaining paths to end of queue
     newQueue.extend(queue[1:])
+
     return newQueue
 
-# Breadth 1st search method
+
+# This function executes the Breadth-First Search algorithm on a provided graph
+# @param neighbors      A list of the expanded node's immediate neighbors
+# @param queue          The current queue of explored paths
+# @param graph_data     Pre-parsed graph following the NetworkX structure
+# @param params         Additional parameters
+# @return newQueue      The updated queue of explored paths processed by the search algorithm
+#
 def breadthFirst(neighbors, queue, graph_data, params):
-    # enqueue to end
     newQueue = []
+
+    # Add remaining paths to front of queue
     newQueue.extend(queue[1:])
-    neighbors.sort()
+
     for n in neighbors:
+        # Check if neighbor has already been visited
         if n in queue[0]['path']:
             continue
+
+        # Add node to path list
         tempQueue = []
         tempQueue.append(n)
         tempQueue.extend(queue[0]['path'])
+
+        # Add path to front of queue of explored paths
         newQueue.append({'path':tempQueue, 'h':0})
+
     return newQueue
 
-# Depth-limited search method
+
+# This function executes the Depth-Limited Search algorithm on a provided graph
+# @param neighbors      A list of the expanded node's immediate neighbors
+# @param queue          The current queue of explored paths
+# @param graph_data     Pre-parsed graph following the NetworkX structure
+# @param params         Additional parameters
+# @return newQueue      The updated queue of explored paths processed by the search algorithm
+#
 def depthLimited(neighbors, queue, graph_data, params):
     newQueue = []
-    neighbors.sort()
+
     for n in neighbors:
+        # Check if neighbor has already been visited
         if n in queue[0]['path']:
             continue
+
+        # Add node to path list
         tempQueue = []
         tempQueue.append(n)
         tempQueue.extend(queue[0]['path'])
+
+        # Only append to queue of explored paths if list length is under the depth limit
         if len(tempQueue)-1 <= params['limit']:
             newQueue.append({'path':tempQueue, 'h':0})
+
+    # Add remaining paths to end of queue
     newQueue.extend(queue[1:])
+
     print(newQueue)
     return newQueue
 
-# Iterative deepening search method
+
+# This function executes the Iterative Deepening Search algorithm on a provided graph
+# @param neighbors      A list of the expanded node's immediate neighbors
+# @param queue          The current queue of explored paths
+# @param graph_data     Pre-parsed graph following the NetworkX structure
+# @param params         Additional parameters
+# @return newQueue      The updated queue of explored paths processed by the search algorithm
+#
 def iterativeDeepening(neighbors, queue, graph_data, params):
     newQueue = []
-    limit = 1
+    limit = 1       # Default limit
+
     while(True):
-        tempQueue = General_Search(graph_data, depthLimited, {'limit':limit})
+        # Iteratively call Depth-Limited Search on queue
+        tempQueue = General_Search(graph_data, depthLimited, {'limit': limit})
+
+        # Increase limit if goal not found
         if not tempQueue:
             limit += 1
             newQueue.append(tempQueue)
@@ -96,44 +151,61 @@ def iterativeDeepening(neighbors, queue, graph_data, params):
         else:
             return tempQueue
 
-# Uniform cost search method
+
+# This function executes the Uniform Cost Search algorithm on a provided graph
+# @param neighbors      A list of the expanded node's immediate neighbors
+# @param queue          The current queue of explored paths
+# @param graph_data     Pre-parsed graph following the NetworkX structure
+# @return newQueue      The updated queue of explored paths processed by the search algorithm
+#
 def uniformCost(neighbors, queue, graph_data):
-    newQ = []
-    newQ.extend(queue[1:])
+    newQueue = []
+
+    # Add remaining paths to front of queue
+    newQueue.extend(queue[1:])
+
+    # Note: neighbors.sort() was called in general function, so this may not work properly???
     for n in neighbors:
+        # Check if neighbor has already been visited
         if n in queue[0]['path']:
             continue
-        tempDict = {}
+
+        # Add node to path list
         tempPath = []
         tempPath.append(n)
         tempPath.extend(queue[0]['path'])
+
+        # Add path list to queue dictionary structure
+        tempDict = {}
         tempDict['path'] = tempPath
+
+        # Determine path cost between current node and neighbor node
         currentNode = queue[0]['path'][0]
         cost = float(graph_data[0][currentNode][n]['weight'])
+
+        # Set cost of explored paths in queue dictionary structure
         if len(queue[0]) == 1:
             tempDict['h'] = cost
         else:
             tempDict['h'] = queue[0]['h'] + cost
-        newQ.append(tempDict)
-        newQ.sort(key=leastCost)
-    # PRINT - remove and replace ***
-##    line = "["
-##    for i in newQ:
-##        line += str(i['h'])
-##        pathstr = str(i['path'])
-##        pathstr = pathstr[1:len(pathstr)-1]
-##        line += "<" + pathstr + ">"
-##        line += "]"
-##    print(line)
-    return newQ
 
-# Greedy search method
+        # Add path dictionary entry to queue
+        newQueue.append(tempDict)
+        newQueue.sort(key=leastCost)
+
+    return newQueue
+
+
+# This function executes the Greedy Search algorithm on a provided graph
+# @param neighbors      A list of the expanded node's immediate neighbors
+# @param queue          The current queue of explored paths
+# @param graph_data     Pre-parsed graph following the NetworkX structure
+# @param params         Additional parameters
+# @return newQueue      The updated queue of explored paths processed by the search algorithm
+#
 def greedySearch(neighbors, queue, graph_data, params):
-    print(queue)
     # Take shortest straight-line route every time
     newQueue = queue[1:]
-
-    neighbors.sort()
 
     # For each neighboring node
     for n in neighbors:
@@ -187,13 +259,18 @@ def greedySearch(neighbors, queue, graph_data, params):
 def leastCost(e):
     return float(e['h'])
 
-# A* search method
+
+# This function executes the A* Search algorithm on a provided graph
+# @param neighbors      A list of the expanded node's immediate neighbors
+# @param queue          The current queue of explored paths
+# @param graph_data     Pre-parsed graph following the NetworkX structure
+# @param params         Additional parameters
+# @return newQueue      The updated queue of explored paths processed by the search algorithm
+#
 def aStarSearch(neighbors, queue, graph_data, params):
     #print(queue)
     # Take shortest straight-line route every time
     newQueue = queue[1:]
-
-    neighbors.sort()
 
     # For each neighboring node
     for n in neighbors:
@@ -249,7 +326,14 @@ def aStarSearch(neighbors, queue, graph_data, params):
     print(newQueue)
     return newQueue
 
-# Hill-climbing search method
+
+# This function executes the Hill-Climbing Search algorithm on a provided graph
+# @param neighbors      A list of the expanded node's immediate neighbors
+# @param queue          The current queue of explored paths
+# @param graph_data     Pre-parsed graph following the NetworkX structure
+# @param params         Additional parameters
+# @return newQueue      The updated queue of explored paths processed by the search algorithm
+#
 def hillClimbing(neighbors, queue, graph_data, params):
     newQueue = []
     neighbors.sort()
@@ -269,7 +353,13 @@ def hillClimbing(neighbors, queue, graph_data, params):
     print(newQueue)
     return newQueue
 
-# Beam search method
+
+# This function executes the Beam Search algorithm on a provided graph
+# @param neighbors      A list of the expanded node's immediate neighbors
+# @param queue          The current queue of explored paths
+# @param graph_data     Pre-parsed graph following the NetworkX structure
+# @return newQueue      The updated queue of explored paths processed by the search algorithm
+#
 def beam(neighbors, queue, graph_data):
     uniqueChild = len(neighbors)
     if len(queue) == 1:
