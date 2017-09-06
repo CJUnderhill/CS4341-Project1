@@ -42,8 +42,60 @@ def General_Search(graph_data, search_method, params = {}):
 # Helper for uniform-cost search; sorts by least cost so far
 # @param e  Graph node
 # @returns  Heuristic value of given node
+#
 def leastCost(e):
     return float(e['h'])
+
+
+# This function models the sorting functionality outlined in the project document
+# @param newQueue       The queue being updated
+# @param tempDict       The current path being updated
+# @return newQueue      The updated queue of explored paths, properly sorted
+#
+def sortFunction(newQueue, tempDict):
+    # For each remaining item in our newQueue
+    for m in newQueue:
+
+        # Skip if we reach the goal node
+        if "G" in tempDict['path']:
+            continue
+
+        # If two paths have different values, then one with lowest value comes first
+        if float(tempDict['h']) not float(m['h']):
+            
+            if float(tempDict['h']) < float(m['h']):
+                break
+            else:
+                break
+
+        else: # Two paths have same value
+
+            # If two paths end at different nodes, put in alphabetical order
+            if n not m['path'][0]:
+
+                if n < m['path'][0]:
+                    break
+                else:
+                    break
+
+            else: # The two paths end at the same node
+
+                # If two paths are of different length, put shortest first
+                if len(tempDict['path']) not len(m['path']):
+
+                    if len(tempDict['path']) < len(m['path']):
+                        break
+                    else:
+                        break
+
+                else: # Two paths end at the same node and are of same length
+
+                    # Sort lexicographically
+                    break
+
+    # Insert queue entry into queue
+    newQueue.insert(index, tempDict)
+    return newQueue
 
 
 # This function executes the Depth-First Search algorithm on a provided graph
