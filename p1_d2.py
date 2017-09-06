@@ -39,6 +39,13 @@ def General_Search(graph_data, search_method, params = {}):
         queue = search_method(opened_nodes, queue, graph_data, params)
 
 
+# Helper for uniform-cost search; sorts by least cost so far
+# @param e  Graph node
+# @returns  Heuristic value of given node
+def leastCost(e):
+    return float(e['h'])
+
+
 # This function executes the Depth-First Search algorithm on a provided graph
 # @param neighbors      A list of the expanded node's immediate neighbors
 # @param queue          The current queue of explored paths
@@ -76,10 +83,8 @@ def depthFirst(neighbors, queue, graph_data, params):
 # @return newQueue      The updated queue of explored paths processed by the search algorithm
 #
 def breadthFirst(neighbors, queue, graph_data, params):
-    newQueue = []
-
     # Add remaining paths to front of queue
-    newQueue.extend(queue[1:])
+    newQueue = queue[1:]
 
     for n in neighbors:
         # Check if neighbor has already been visited
@@ -133,7 +138,7 @@ def depthLimited(neighbors, queue, graph_data, params):
 # @param queue          The current queue of explored paths
 # @param graph_data     Pre-parsed graph following the NetworkX structure
 # @param params         Additional parameters
-# @return newQueue      The updated queue of explored paths processed by the search algorithm
+# @return tempQueue      The updated queue of explored paths processed by the search algorithm
 #
 def iterativeDeepening(neighbors, queue, graph_data, params):
     newQueue = []
@@ -159,10 +164,8 @@ def iterativeDeepening(neighbors, queue, graph_data, params):
 # @return newQueue      The updated queue of explored paths processed by the search algorithm
 #
 def uniformCost(neighbors, queue, graph_data):
-    newQueue = []
-
     # Add remaining paths to front of queue
-    newQueue.extend(queue[1:])
+    newQueue = queue[1:]
 
     # Note: neighbors.sort() was called in general function, so this may not work properly???
     for n in neighbors:
@@ -204,27 +207,24 @@ def uniformCost(neighbors, queue, graph_data):
 # @return newQueue      The updated queue of explored paths processed by the search algorithm
 #
 def greedySearch(neighbors, queue, graph_data, params):
-    # Take shortest straight-line route every time
+    # Add remaining paths to front of queue
     newQueue = queue[1:]
 
     # For each neighboring node
     for n in neighbors:
-        tempQueue = []
-        tempDict = {}
-        if n in queue[0]['path']:   # Skip cycles
+        # Check if neighbor has already been visited
+        if n in queue[0]['path']:
             continue
 
-        print("Queue: " + str(newQueue))
-
-        # Construct queue entry
+        # Add node to path list
+        tempQueue = []
         tempQueue.insert(0, n)
         tempQueue.extend(queue[0]['path'])
-        print("Queue Entry: " + str(tempQueue))
 
-        index = 0
-
+        # Add path list to queue dictionary structure
+        tempDict = {}
         tempDict['path'] = tempQueue
-        if n == 'G':
+        if n == 'G':    # Set heuristic when we reach the goal node
             tempDict['h'] =  0.0
         else:
             tempDict['h'] = float(graph_data[1][n])
@@ -232,17 +232,16 @@ def greedySearch(neighbors, queue, graph_data, params):
         # If newQueue is empty, simply add to front
         if not newQueue:
             newQueue.append(tempDict)
-            print("tempQueue: " + str(tempQueue))
-            print("tempDict: " + str(tempDict))
         else:
+            index = 0
+            # For each remaining item in our newQueue
             for m in newQueue:
+                # Skip if we reach the goal node
                 if "G" in tempDict['path']:
                     continue
-                # Review heuristic value
+
+                # Exit loop and add to queue in current position if heuristic value less than current value in queue
                 if float(graph_data[1][n]) < float(m['h']):
-                    print(str(n) + " : " + str(graph_data[1][n]))
-                    print(str(m['h']) + " : " + str(m['h']))
-                    #print(m)
                     break
                 else: # Increase index of location in queue if heuristic value greater than checked value
                     index += 1
@@ -250,14 +249,9 @@ def greedySearch(neighbors, queue, graph_data, params):
 
             # Insert queue entry into queue
             newQueue.insert(index, tempDict)
-        print("New Queue: " + str(index) + " " + str(newQueue) + "\n")
 
+    print(newQueue)
     return newQueue
-
-# Helper for uniform-cost search
-# Sorts by least cost so far
-def leastCost(e):
-    return float(e['h'])
 
 
 # This function executes the A* Search algorithm on a provided graph
@@ -268,53 +262,50 @@ def leastCost(e):
 # @return newQueue      The updated queue of explored paths processed by the search algorithm
 #
 def aStarSearch(neighbors, queue, graph_data, params):
-    #print(queue)
-    # Take shortest straight-line route every time
+    # Add remaining paths to front of queue
     newQueue = queue[1:]
 
     # For each neighboring node
     for n in neighbors:
-        tempQueue = []
-        tempDict = {}
-        if n in queue[0]['path']:   # Skip cycles
+        # Check if neighbor has already been visited
+        if n in queue[0]['path']:
             continue
 
-        #print("Queue: " + str(newQueue))
-
-        # Construct queue entry
+        # Add node to path list
+        tempQueue = []
         tempQueue.insert(0, n)
         tempQueue.extend(queue[0]['path'])
-        #print("Queue Entry: " + str(tempQueue))
 
-        index = 0
-
-        tempDict['path'] = tempQueue
-        prevH = float(graph_data[1][queue[0]['path'][0]])
+        # Determine the current cost (and current f-value) of neighboring node
+        prevF = float(graph_data[1][queue[0]['path'][0]])
         prevVal = float(queue[0]['h'])
-        prevCost = prevVal - prevH
-        currentWeight = float(graph_data[0][n][queue[0]['path'][0]]['weight'])
-        if n == 'G':
-            currentH = 0
+        prevCost = prevVal - prevF
+        currentCost = float(graph_data[0][n][queue[0]['path'][0]]['weight'])
+        if n == 'G':    # Set F-val when we reach goal node
+            currentF = 0
         else:
-            currentH = float(graph_data[1][n])
-        print(prevVal)
-        tempDict['h'] = prevCost + currentH + currentWeight
-        skip = False
+            currentF = float(graph_data[1][n])
+
+        # Add path list to queue dictionary structure
+        tempDict = {}
+        tempDict['path'] = tempQueue
+        tempDict['h'] = prevCost + currentF + currentCost
         
         # If newQueue is empty
         if not newQueue:
             newQueue.append(tempDict)
-            #print("tempQueue: " + str(tempQueue))
-            #print("tempDict: " + str(tempDict))
         else:
+            skip = False
             for m in newQueue:
+
+                # Skip if we reach the goal node
                 if "G" in tempDict['path']:
                     continue
-                # Check for common goal
+
+                # Check for common path
                 if n == m['path'][0]:
-                    print(m['h'])
-                    print(tempDict['h'])
-                    # Take least cost so far
+
+                    # Take path with the least cost so far
                     if m['h'] < tempDict['h']:
                         skip = True
 
@@ -322,7 +313,7 @@ def aStarSearch(neighbors, queue, graph_data, params):
             if not skip:
                 newQueue.append(tempDict)
                 newQueue.sort(key=leastCost)
-        #print("New Queue: " + str(index) + " " + str(newQueue) + "\n")
+
     print(newQueue)
     return newQueue
 
@@ -336,20 +327,30 @@ def aStarSearch(neighbors, queue, graph_data, params):
 #
 def hillClimbing(neighbors, queue, graph_data, params):
     newQueue = []
-    neighbors.sort()
     neighborsVal = {}
+
     for n in neighbors:
+        # Set F-value when we reach goal node
         if n == 'G':
             neighborsVal[n] = 0
-        else:
+        else:   # Set F-value to the heuristic
             neighborsVal[n] = float(graph_data[1][n])
+
+        # Check if neighbor has already been visited
         if n in queue[0]['path']:
             continue
+
+    # Sort neighbors by value
     sorted_neighbors = sorted(neighborsVal.items(), key=operator.itemgetter(1))
+
+    # Add node to path list
     tempQueue = []
     tempQueue.append(sorted_neighbors[0][0])
     tempQueue.extend(queue[0]['path'])
+
+    # Insert queue entry into queue
     newQueue.append({'path':tempQueue, 'h':0})
+    
     print(newQueue)
     return newQueue
 
@@ -361,50 +362,65 @@ def hillClimbing(neighbors, queue, graph_data, params):
 # @return newQueue      The updated queue of explored paths processed by the search algorithm
 #
 def beam(neighbors, queue, graph_data):
+    #
     uniqueChild = len(neighbors)
+
+    # Set initial queue heuristic to that of the starting node
+    # TODO: Do we even need this anymore?
     if len(queue) == 1:
         queue[0]['h'] = 11
-    newQ = []
-    newQ.extend(queue[1:])
+
+    # Add remaining paths to front of queue
+    newQueue = queue[1:]
     for n in neighbors:
+        #
         if n in queue[0]['path']:
             uniqueChild -= 1
             continue
-        tempDict = {}
+        
+        # Add node to path list
         tempPath = []
         tempPath.append(n)
         tempPath.extend(queue[0]['path'])
-        tempDict['path'] = tempPath
+
+        # Set heuristic when we reach the goal node
         if n == 'G':
             heuristic = 0
-        else:
+        else:   # Pull heuristic from graph data
             heuristic = graph_data[1][n]
+
+        # Add path list to queue dictionary structure
+        tempDict = {}
+        tempDict['path'] = tempPath
         tempDict['h'] = heuristic
-        newQ.append(tempDict)
+        newQueue.append(tempDict)
+
     # sort lexographically
-    cutoff = len(newQ) - uniqueChild
-    #print(cutoff)
-    #print('before: ',newQ)
+    cutoff = len(newQueue) - uniqueChild
+
+    #
     beforeCutList = []
     if cutoff > 0:
-        #print('here')
-        beforeCutList = newQ[:cutoff]
-    #print('notsorted: ', beforeCutList)
-    #print('sorted: ',sorted(newQ[cutoff:], key=lex))
-    newQ = beforeCutList + sorted(newQ[cutoff:], key=lex)
-    #print('after: ',newQ)
+        beforeCutList = newQueue[:cutoff]
+
+    #
+    newQueue = beforeCutList + sorted(newQueue[cutoff:], key=lex)
+    
+    #
     pastlen = 0
     if len(queue) > 2:
-        for i in newQ:
+        for i in newQueue:
             ilen = len(i['path'])
-            if ilen == pastlen:
-                newQ.sort(key=leastCost)
-                #print('LeastCost: ', newQ)
-                newQ = newQ[:2]
-                #print("Next level")
-                #print('after next level: ', newQ)
-                return newQ
-            pastlen = ilen
-    return newQ
 
+            #
+            if ilen == pastlen:
+                newQueue.sort(key=leastCost)
+                newQueue = newQueue[:2]
+                return newQueue
+            pastlen = ilen
+
+    return newQueue
+
+
+# Main function stuff
 General_Search(graphParser.build_graph('graph.txt'), aStarSearch)
