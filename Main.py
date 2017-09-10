@@ -1,5 +1,7 @@
 from Algorithms2 import *
 import graphParser
+from queuePrint import *
+
 
 def DepthFirstSearch(graph_data):
     Q, out = General_Search(graph_data, depthFirst, {'h':0})
@@ -39,35 +41,7 @@ def BeamSearch(graph_data):
     return Q, out
 
 
-# Print
-def printQueue(output, informed):
-    print()
-    print("     Expanded   Queue")
-    for queue in output:
-        if queue == []:
-            print("\tfailure to find path between S and G")
-            break
-        if queue == 'goal reached!':
-            print("\t" + queue)
-            break
-        # print expanded
-        expanded = queue[0]['path'][0]
-        # print rest of line
-        line = "\t" + expanded + "\t["
-        for path in queue:
-            pathstr = ""
-            if informed:
-                pathstr += str(path['h'])
-            pathstr += "<"
-            for node in path['path']:
-                pathstr += (node + ",")
-            pathstr = pathstr[:len(pathstr)-1]
-            pathstr += ">"
-            line += (pathstr + " ")
-        line = line[:len(line)-1]
-        line += "]"
-        print(line)
-    print()
+
 
 # Main
 def main(file):
@@ -88,7 +62,7 @@ def main(file):
 
     print("Iterative deepening search")
     IterativeDeepeningSearch(graph_data)
-    printQueue(out, False)
+    #printQueue(out, False)
     # FIX THIS
 
     # SORT LEXOGRAPHICALLY FOR ALL
@@ -114,4 +88,11 @@ def main(file):
 
 #main("graph.txt")
 #main("second_graph.txt")
-main("BonusProblem.txt")
+#main("BonusProblem.txt")
+if __name__ == "__main__":
+    print("Welcome the graph search program.\n" +
+          "Input the path of your txt file that has your graph\n" +
+          "and the graph will be searched using 9 different search methods\n")
+    path = input("What is the path of your txt file?: ")
+    main(path)
+    

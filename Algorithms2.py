@@ -8,6 +8,7 @@
 
 import graphParser
 import operator
+from queuePrint import *
 
 
 # This function provides a general search structure for both informed and
@@ -207,6 +208,8 @@ def iterativeDeepening(neighbors, queue, graph_data, params):
         tempQueue, n = General_Search(graph_data, depthLimited, {'limit': limit})
 
         # Increase limit if goal not found
+        print("limit = ",limit)
+        printQueue(n,True)
         if not tempQueue:
             limit += 1
             newQueue.append(tempQueue)
