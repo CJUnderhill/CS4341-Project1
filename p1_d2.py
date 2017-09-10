@@ -478,4 +478,4 @@ def beam(neighbors, queue, graph_data):
 
 
 # Main function stuff
-General_Search(graphParser.build_graph('graph.txt'), hillClimbing)
+General_Search(graphParser.build_graph('second_graph.txt'), breadthFirst)

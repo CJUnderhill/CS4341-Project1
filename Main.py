@@ -112,5 +112,6 @@ def main(file):
     Q, out = BeamSearch(graph_data)
     printQueue(out, True)
 
-main("graph.txt")
-main("second_graph.txt")
+#main("graph.txt")
+#main("second_graph.txt")
+main("BonusProblem.txt")

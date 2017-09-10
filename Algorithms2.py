@@ -32,7 +32,6 @@ def General_Search(graph_data, search_method, params = {}):
 
         # Set current node to front of queue
         node = queue[0]['path'][0]
-
         # Return queue if goal reached
         if node == 'G':
             return queue, output
@@ -188,7 +187,7 @@ def depthLimited(neighbors, queue, graph_data, params):
     # Add remaining paths to end of queue
     newQueue.extend(queue[1:])
 
-    print(newQueue)
+    #print(newQueue)
     return newQueue
 
 
@@ -211,7 +210,7 @@ def iterativeDeepening(neighbors, queue, graph_data, params):
         if not tempQueue:
             limit += 1
             newQueue.append(tempQueue)
-            print(newQueue)
+            #print(newQueue)
         else:
             return tempQueue
 
@@ -309,7 +308,7 @@ def greedySearch(neighbors, queue, graph_data, params):
             # Insert queue entry into queue
             newQueue.insert(index, tempDict)
 
-    print(newQueue)
+    #print(newQueue)
     return newQueue
 
 
@@ -373,7 +372,7 @@ def aStarSearch(neighbors, queue, graph_data, params):
                 newQueue.append(tempDict)
                 newQueue.sort(key=leastCost)
 
-    print(newQueue)
+    #print(newQueue)
     return newQueue
 
 
@@ -387,30 +386,40 @@ def aStarSearch(neighbors, queue, graph_data, params):
 def hillClimbing(neighbors, queue, graph_data, params):
     newQueue = []
     neighborsVal = {}
+    sorted_neihbors = []
 
+    #print("\nneighbors :", neighbors)
+    #print("queue :", queue)
     for n in neighbors:
         # Set F-value when we reach goal node
+        #print("here")
         if n == 'G':
             neighborsVal[n] = 0
-        else:   # Set F-value to the heuristic
+        elif n not in queue[0]['path'] :   # Set F-value to the heuristic
             neighborsVal[n] = float(graph_data[1][n])
-
-        # Check if neighbor has already been visited
-        if n in queue[0]['path']:
+        elif n in queue[0]['path']:
             continue
 
+
+        # Check if neighbor has already been visited
+        #if n in queue[0]['path']:
+         #   continue
+   # print("out of here ")
     # Sort neighbors by value
     sorted_neighbors = sorted(neighborsVal.items(), key=operator.itemgetter(1))
 
     # Add node to path list
-    tempQueue = []
-    tempQueue.append(sorted_neighbors[0][0])
-    tempQueue.extend(queue[0]['path'])
+ 
+    if(len(sorted_neighbors) > 0):
+        tempQueue = []
+        #print(sorted_neighbors)
+        tempQueue.append(sorted_neighbors[0][0])
+        tempQueue.extend(queue[0]['path'])
 
-    # Insert queue entry into queue
-    newQueue.append({'path':tempQueue, 'h':0})
+        # Insert queue entry into queue
+        newQueue.append({'path':tempQueue, 'h':0})
     
-    print(newQueue)
+        #print("newqueue :",newQueue)
     return newQueue
 
 
