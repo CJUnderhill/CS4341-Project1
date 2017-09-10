@@ -7,6 +7,7 @@
 
 
 import graphParser
+from decimal import *
 
 
 # This function provides a general search structure for both informed and
@@ -33,7 +34,8 @@ def General_Search(graph_data, search_method, params = {}):
             return queue
 
         # Determine nodes to expand from current node
-        opened_nodes = graph_data[0].neighbors(node).sort()
+        opened_nodes = graph_data[0].neighbors(node)
+        opened_nodes.sort()
 
         # Execute search algorithm and update the queue
         queue = search_method(opened_nodes, queue, graph_data, params)
@@ -44,7 +46,7 @@ def General_Search(graph_data, search_method, params = {}):
 # @returns  Heuristic value of given node
 #
 def leastCost(e):
-    return float(e['h'])
+    return Decimal(e['h'])
 
 
 # This function models the sorting functionality outlined in the project document
@@ -236,7 +238,7 @@ def uniformCost(neighbors, queue, graph_data):
 
         # Determine path cost between current node and neighbor node
         currentNode = queue[0]['path'][0]
-        cost = float(graph_data[0][currentNode][n]['weight'])
+        cost = Decimal(graph_data[0][currentNode][n]['weight'])
 
         # Set cost of explored paths in queue dictionary structure
         if len(queue[0]) == 1:
@@ -279,7 +281,7 @@ def greedySearch(neighbors, queue, graph_data, params):
         if n == 'G':    # Set heuristic when we reach the goal node
             tempDict['h'] =  0.0
         else:
-            tempDict['h'] = float(graph_data[1][n])
+            tempDict['h'] = Decimal(graph_data[1][n])
 
         # If newQueue is empty, simply add to front
         if not newQueue:
@@ -293,7 +295,7 @@ def greedySearch(neighbors, queue, graph_data, params):
                     continue
 
                 # Exit loop and add to queue in current position if heuristic value less than current value in queue
-                if float(graph_data[1][n]) < float(m['h']):
+                if Decimal(graph_data[1][n]) < Decimal(m['h']):
                     break
                 else: # Increase index of location in queue if heuristic value greater than checked value
                     index += 1
@@ -329,14 +331,14 @@ def aStarSearch(neighbors, queue, graph_data, params):
         tempQueue.extend(queue[0]['path'])
 
         # Determine the current cost (and current f-value) of neighboring node
-        prevF = float(graph_data[1][queue[0]['path'][0]])
-        prevVal = float(queue[0]['h'])
+        prevF = Decimal(graph_data[1][queue[0]['path'][0]])
+        prevVal = Decimal(queue[0]['h'])
         prevCost = prevVal - prevF
-        currentCost = float(graph_data[0][n][queue[0]['path'][0]]['weight'])
+        currentCost = Decimal(graph_data[0][n][queue[0]['path'][0]]['weight'])
         if n == 'G':    # Set F-val when we reach goal node
             currentF = 0
         else:
-            currentF = float(graph_data[1][n])
+            currentF = Decimal(graph_data[1][n])
 
         # Add path list to queue dictionary structure
         tempDict = {}
@@ -386,7 +388,7 @@ def hillClimbing(neighbors, queue, graph_data, params):
         if n == 'G':
             neighborsVal[n] = 0
         else:   # Set F-value to the heuristic
-            neighborsVal[n] = float(graph_data[1][n])
+            neighborsVal[n] = Decimal(graph_data[1][n])
 
         # Check if neighbor has already been visited
         if n in queue[0]['path']:
