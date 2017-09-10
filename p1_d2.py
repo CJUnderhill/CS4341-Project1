@@ -61,9 +61,9 @@ def sortFunction(newQueue, tempDict):
             continue
 
         # If two paths have different values, then one with lowest value comes first
-        if float(tempDict['h']) not float(m['h']):
+        if Decimal(tempDict['h']) is not Decimal(m['h']):
             
-            if float(tempDict['h']) < float(m['h']):
+            if Decimal(tempDict['h']) < Decimal(m['h']):
                 break
             else:
                 break
@@ -71,7 +71,7 @@ def sortFunction(newQueue, tempDict):
         else: # Two paths have same value
 
             # If two paths end at different nodes, put in alphabetical order
-            if n not m['path'][0]:
+            if n is not m['path'][0]:
 
                 if n < m['path'][0]:
                     break
@@ -81,7 +81,7 @@ def sortFunction(newQueue, tempDict):
             else: # The two paths end at the same node
 
                 # If two paths are of different length, put shortest first
-                if len(tempDict['path']) not len(m['path']):
+                if len(tempDict['path']) is not len(m['path']):
 
                     if len(tempDict['path']) < len(m['path']):
                         break
