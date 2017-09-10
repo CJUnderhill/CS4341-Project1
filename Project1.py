@@ -223,8 +223,8 @@ graph = graphParser.build_graph('graph.txt')
 #General_Search(graph, "depthFirst")
 #General_Search(graph, "breadthFirst")
 #General_Search(graph, "greedySearch")
-#General_Search(graph, "depthLimited",limit = 3)
+General_Search(graph, "depthLimited",limit = 3)
 #General_Search(graph, "iterativeDeepening")
-General_Search(graph, "hillClimbing")
+#General_Search(graph, "hillClimbing")
 
 

@@ -7,6 +7,7 @@
 
 
 import graphParser
+import operator
 from decimal import *
 
 
@@ -53,7 +54,7 @@ def leastCost(e):
 # @param newQueue       The queue being updated
 # @param tempDict       The current path being updated
 # @return newQueue      The updated queue of explored paths, properly sorted
-#
+'''
 def sortFunction(newQueue, tempDict):
     # For each remaining item in our newQueue
     for m in newQueue:
@@ -99,7 +100,7 @@ def sortFunction(newQueue, tempDict):
     newQueue.insert(index, tempDict)
     return newQueue
 
-
+'''
 # This function executes the Depth-First Search algorithm on a provided graph
 # @param neighbors      A list of the expanded node's immediate neighbors
 # @param queue          The current queue of explored paths
@@ -477,4 +478,4 @@ def beam(neighbors, queue, graph_data):
 
 
 # Main function stuff
-General_Search(graphParser.build_graph('graph.txt'), aStarSearch)
+General_Search(graphParser.build_graph('graph.txt'), hillClimbing)

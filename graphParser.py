@@ -18,7 +18,7 @@ import networkx as nx
 def handle_input():
 	# Parse input arguments
 	parser = argparse.ArgumentParser(description='Process textual graphs using various search algorithms.')
-	parser.add_argument('--graph_file_path', help='Path to input graph file.', default=(sys.path[0]+'/graph.txt'))
+	parser.add_argument('--graph_file_path', help='Path to input graph file.', default=(sys.path[0]+'/second_graph.txt'))
 
 	return parser.parse_args(sys.argv[1:2])
 
