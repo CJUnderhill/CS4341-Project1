@@ -44,7 +44,6 @@ def General_Search(graph_data, search_method, params = {}):
         # Execute search algorithm and update the queue
         queue = search_method(opened_nodes, queue, graph_data, params)
         output.append(queue)
-        print(queue)
 
 
 # Helper for uniform-cost search; sorts by least cost so far
@@ -100,7 +99,6 @@ def compare(a,b):
                     return 1
             else:
                 for i in range(len(lista)):
-                    print("here")
                     if lista[i] < listb[i]:
                         return -1
                     elif lista[i] > listb[i]:
@@ -115,10 +113,8 @@ def compare(a,b):
 # @return newQueue      The updated queue of explored paths, properly sorted
 #
 def sortFunction(queue):
-    print(queue)
     newQueue = queue[:] #copy the list 
     newQueue.sort(key = cmp_to_key(compare))
-    print(newQueue)
     return newQueue
 
 
