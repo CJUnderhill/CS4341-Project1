@@ -44,6 +44,7 @@ def General_Search(graph_data, search_method, params = {}):
         # Execute search algorithm and update the queue
         queue = search_method(opened_nodes, queue, graph_data, params)
         output.append(queue)
+        print(queue)
 
 
 # Helper for uniform-cost search; sorts by least cost so far
@@ -54,54 +55,70 @@ def leastCost(e):
     return float(e['h'])
 
 
+def cmp_to_key(mycmp):
+    'Convert a cmp= function into a key= function'
+    class K(object):
+        def __init__(self, obj, *args):
+            self.obj = obj
+        def __lt__(self, other):
+            return mycmp(self.obj, other.obj) < 0
+        def __gt__(self, other):
+            return mycmp(self.obj, other.obj) > 0
+        def __eq__(self, other):
+            return mycmp(self.obj, other.obj) == 0
+        def __le__(self, other):
+            return mycmp(self.obj, other.obj) <= 0  
+        def __ge__(self, other):
+            return mycmp(self.obj, other.obj) >= 0
+        def __ne__(self, other):
+            return mycmp(self.obj, other.obj) != 0
+    return K
+
+
+def compare(a,b):
+    vala = a['h']
+    valb = b['h']
+    lista = a['path']
+    listb = b['path']
+
+    if(vala != valb):
+        if(vala > valb):
+            return -1
+        else:
+            return 1
+    else:
+        if lista[0] != listb[0]:
+            if lista[0] > listb[0]:
+                return 1
+            else:
+                return -1
+        else:
+            if len(lista) != len(listb):
+                if len(lista) < len(listb):
+                    return -1
+                else:
+                    return 1
+            else:
+                for i in range(len(lista)):
+                    print("here")
+                    if lista[i] < listb[i]:
+                        return -1
+                    elif lista[i] > listb[i]:
+                        return 1
+                    else:
+                        continue
+                               
+            
 # This function models the sorting functionality outlined in the project document
 # @param newQueue       The queue being updated
 # @param tempDict       The current path being updated
 # @return newQueue      The updated queue of explored paths, properly sorted
 #
-def sortFunction(newQueue, tempDict):
-    # For each remaining item in our newQueue
-    for m in newQueue:
-
-        # Skip if we reach the goal node
-        if "G" in tempDict['path']:
-            continue
-
-        # If two paths have different values, then one with lowest value comes first
-        if Decimal(tempDict['h']) is not Decimal(m['h']):
-            
-            if Decimal(tempDict['h']) < Decimal(m['h']):
-                break
-            else:
-                break
-
-        else: # Two paths have same value
-
-            # If two paths end at different nodes, put in alphabetical order
-            if n is not m['path'][0]:
-
-                if n < m['path'][0]:
-                    break
-                else:
-                    break
-
-            else: # The two paths end at the same node
-
-                # If two paths are of different length, put shortest first
-                if len(tempDict['path']) is not len(m['path']):
-
-                    if len(tempDict['path']) < len(m['path']):
-                        break
-                    else:
-                        break
-
-                else: # Two paths end at the same node and are of same length
-
-                    # Sort lexicographically
-                    break
-
-    # Insert queue entry into queue
-    newQueue.insert(index, tempDict)
+def sortFunction(queue):
+    print(queue)
+    newQueue = queue[:] #copy the list 
+    newQueue.sort(key = cmp_to_key(compare))
+    print(newQueue)
     return newQueue
 
 
@@ -494,3 +511,10 @@ def beam(neighbors, queue, graph_data, params):
             pastlen = ilen
 
     return newQueue
+
+
+
+#graph_data = graphParser.build_graph("graph.txt")
+#General_Search(graph_data, aStarSearch, {'h':11})
+#sortFunction([{'path': ['P','L', 'H', 'S'], 'h': '6.7'},{'path': ['A', 'H', 'S'], 'h': '10.8'} ,{'path': ['P','L', 'D', 'S'], 'h': '6.7'}
+#])
