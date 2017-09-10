@@ -38,6 +38,10 @@ def build_graph(graph_file):
 	with open(graph_file) as f:
 		for line in f:
 
+			# If file has extra empty lines at EOF, skip them and terminate read-in
+			if not line.strip():
+				break
+
 			# If we're reading graph info
 			if heuristic == False:
 				if line.strip() == "#####":
