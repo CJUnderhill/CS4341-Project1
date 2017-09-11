@@ -15,7 +15,6 @@ def DepthLimitedSearch(graph_data):
     Q, out = General_Search(graph_data, depthLimited, {'h':0, "limit":2})
     return Q, out
 
-# SPECIAL
 def IterativeDeepeningSearch(graph_data):
     Q, out = General_Search(graph_data, iterativeDeepening, {'h':0})
     return Q, out
@@ -62,10 +61,7 @@ def main(file):
 
     print("Iterative deepening search")
     IterativeDeepeningSearch(graph_data)
-    #printTrace(out, False)
-    # FIX THIS
 
-    # SORT LEXOGRAPHICALLY FOR ALL
     print("Uniform Search (Branch-and-bound)")
     Q, out = UniformSearch(graph_data)
     printTrace(out, True)

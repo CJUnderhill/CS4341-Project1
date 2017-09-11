@@ -9,6 +9,7 @@
 import graphParser
 import operator
 from PrintTrace import *
+from SortQueue import *
 
 
 # This function provides a general search structure for both informed and
@@ -24,7 +25,7 @@ def General_Search(graph_data, search_method, params = {}):
     output = []
     
     # Make queue and initialize to start node
-    queue = [{'path':['S'], 'h':11}]
+    queue = [{'path':['S'], 'h':params['h']}]
     output.append(queue)
 
     while(True):
@@ -45,79 +46,6 @@ def General_Search(graph_data, search_method, params = {}):
         # Execute search algorithm and update the queue
         queue = search_method(opened_nodes, queue, graph_data, params)
         output.append(queue)
-
-
-# ERASE
-# Helper for uniform-cost search; sorts by least cost so far
-# @param e  Graph node
-# @returns  Heuristic value of given node
-#
-def leastCost(e):
-    return float(e['h'])
-
-
-def cmp_to_key(mycmp):
-    'Convert a cmp= function into a key= function'
-    class K(object):
-        def __init__(self, obj, *args):
-            self.obj = obj
-        def __lt__(self, other):
-            return mycmp(self.obj, other.obj) < 0
-        def __gt__(self, other):
-            return mycmp(self.obj, other.obj) > 0
-        def __eq__(self, other):
-            return mycmp(self.obj, other.obj) == 0
-        def __le__(self, other):
-            return mycmp(self.obj, other.obj) <= 0  
-        def __ge__(self, other):
-            return mycmp(self.obj, other.obj) >= 0
-        def __ne__(self, other):
-            return mycmp(self.obj, other.obj) != 0
-    return K
-
-
-def compare(a,b):
-    vala = a['h']
-    valb = b['h']
-    lista = a['path']
-    listb = b['path']
-
-    if(vala != valb):
-        if(vala > valb):
-            return -1
-        else:
-            return 1
-    else:
-        if lista[0] != listb[0]:
-            if lista[0] > listb[0]:
-                return 1
-            else:
-                return -1
-        else:
-            if len(lista) != len(listb):
-                if len(lista) < len(listb):
-                    return -1
-                else:
-                    return 1
-            else:
-                for i in range(len(lista)):
-                    if lista[i] < listb[i]:
-                        return -1
-                    elif lista[i] > listb[i]:
-                        return 1
-                    else:
-                        continue
-                               
-            
-# This function models the sorting functionality outlined in the project document
-# @param newQueue       The queue being updated
-# @param tempDict       The current path being updated
-# @return newQueue      The updated queue of explored paths, properly sorted
-#
-def sortFunction(queue):
-    newQueue = queue[:] #copy the list 
-    newQueue.sort(key = cmp_to_key(compare))
-    return newQueue
 
 
 # This function executes the Depth-First Search algorithm on a provided graph
@@ -203,7 +131,6 @@ def depthLimited(neighbors, queue, graph_data, params):
     # Add remaining paths to end of queue
     newQueue.extend(queue[1:])
 
-    #print(newQueue)
     return newQueue
 
 
@@ -220,15 +147,16 @@ def iterativeDeepening(neighbors, queue, graph_data, params):
 
     while(True):
         # Iteratively call Depth-Limited Search on queue
-        tempQueue, n = General_Search(graph_data, depthLimited, {'limit': limit})
+        tempQueue, n = General_Search(graph_data, depthLimited, {'h':0, 'limit': limit})
 
+        # Print the trace
+        print("L = " + str(limit))
+        printTrace(n,False)
+        
         # Increase limit if goal not found
-        print("limit = ",limit)
-        printTrace(n,True)
         if not tempQueue:
             limit += 1
             newQueue.append(tempQueue)
-            #print(newQueue)
         else:
             return tempQueue
 
@@ -243,7 +171,6 @@ def uniformCost(neighbors, queue, graph_data, params):
     # Add remaining paths to front of queue
     newQueue = queue[1:]
 
-    # Note: neighbors.sort() was called in general function, so this may not work properly???
     for n in neighbors:
         # Check if neighbor has already been visited
         if n in queue[0]['path']:
@@ -270,7 +197,9 @@ def uniformCost(neighbors, queue, graph_data, params):
 
         # Add path dictionary entry to queue
         newQueue.append(tempDict)
-        newQueue.sort(key=leastCost)
+
+    # Sort the queue by least cost-so-far
+    newQueue = sortFunction(newQueue)
 
     return newQueue
 
@@ -326,7 +255,8 @@ def greedySearch(neighbors, queue, graph_data, params):
             # Insert queue entry into queue
             newQueue.insert(index, tempDict)
 
-    #print(newQueue)
+    newQueue = sortFunction(newQueue)
+
     return newQueue
 
 
@@ -390,7 +320,8 @@ def aStarSearch(neighbors, queue, graph_data, params):
                 newQueue.append(tempDict)
                 newQueue.sort(key=leastCost)
 
-    #print(newQueue)
+    newQueue = sortFunction(newQueue)
+
     return newQueue
 
 
@@ -403,41 +334,32 @@ def aStarSearch(neighbors, queue, graph_data, params):
 #
 def hillClimbing(neighbors, queue, graph_data, params):
     newQueue = []
-    neighborsVal = {}
-    sorted_neihbors = []
-
-    #print("\nneighbors :", neighbors)
-    #print("queue :", queue)
+    expanded_nodes = []
+    
+    # For each neighboring node
     for n in neighbors:
-        # Set F-value when we reach goal node
-        #print("here")
-        if n == 'G':
-            neighborsVal[n] = 0
-        elif n not in queue[0]['path'] :   # Set F-value to the heuristic
-            neighborsVal[n] = float(graph_data[1][n])
-        elif n in queue[0]['path']:
+        # Check if neighbor has already been visited
+        if n in queue[0]['path']:
             continue
 
+        if n == 'G':
+            hVal = 0
+        else:
+            hVal = float(graph_data[1][n])
+        expanded_nodes.append({'path':[n], 'h':hVal})
 
-        # Check if neighbor has already been visited
-        #if n in queue[0]['path']:
-         #   continue
-   # print("out of here ")
-    # Sort neighbors by value
-    sorted_neighbors = sorted(neighborsVal.items(), key=operator.itemgetter(1))
+    # Sort expanded nodes
+    expanded_nodes = sortFunction(expanded_nodes)
 
     # Add node to path list
- 
-    if(len(sorted_neighbors) > 0):
+    if(len(expanded_nodes) > 0):
         tempQueue = []
-        #print(sorted_neighbors)
-        tempQueue.append(sorted_neighbors[0][0])
+        tempQueue.append(expanded_nodes[0]['path'][0])
         tempQueue.extend(queue[0]['path'])
 
         # Insert queue entry into queue
-        newQueue.append({'path':tempQueue, 'h':0})
+        newQueue.append({'path':tempQueue, 'h':expanded_nodes[0]['h']})
     
-        #print("newqueue :",newQueue)
     return newQueue
 
 
@@ -451,20 +373,13 @@ def lex(e):
     return e['path'][0]
 
 def beam(neighbors, queue, graph_data, params):
-    #
-    uniqueChild = len(neighbors)
-
-    # Set initial queue heuristic to that of the starting node
-    # TODO: Do we even need this anymore?
-    if len(queue) == 1:
-        queue[0]['h'] = 11
-
     # Add remaining paths to front of queue
     newQueue = queue[1:]
+    evalQueue = []
+    tempQueue = []
     for n in neighbors:
-        #
+        # Skip nodes that have been visited
         if n in queue[0]['path']:
-            uniqueChild -= 1
             continue
         
         # Add node to path list
@@ -482,37 +397,34 @@ def beam(neighbors, queue, graph_data, params):
         tempDict = {}
         tempDict['path'] = tempPath
         tempDict['h'] = heuristic
-        newQueue.append(tempDict)
+        tempQueue.append(tempDict)
 
-    # sort lexographically
-    cutoff = len(newQueue) - uniqueChild
+    if tempQueue == []:
+        return newQueue
 
-    #
-    beforeCutList = []
-    if cutoff > 0:
-        beforeCutList = newQueue[:cutoff]
+    # Sort the queue then add to the new queue
+    evalQueue.extend(sortFunction(tempQueue))
+    if len(evalQueue) >= 2:
+        evalQueue = evalQueue[:2]
 
-    #
-    newQueue = beforeCutList + sorted(newQueue[cutoff:], key=lex)
-    
-    #
-    pastlen = 0
-    if len(queue) > 2:
+    levelDone = False
+    if len(newQueue) >= 1:
+        pathLength = len(newQueue[0]['path'])
         for i in newQueue:
-            ilen = len(i['path'])
+            if len(i['path']) == pathLength:
+                if pathLength == len(tempQueue[0]['path']):
+                    levelDone = True
+            else:
+                levelDone = False
+                break
 
-            #
-            if ilen == pastlen:
-                newQueue.sort(key=leastCost)
-                newQueue = newQueue[:2]
-                return newQueue
-            pastlen = ilen
-
+    newQueueAdd = tempQueue[:]
+    if levelDone:
+        print("level done")
+        for index, t in enumerate(tempQueue):
+            for eVal, e in enumerate(evalQueue):
+                if not t['path'] == evalQueue[eVal]['path']:
+                    newQueueAdd.remove(t)
+                    
+    newQueue.extend(newQueueAdd)
     return newQueue
-
-
-
-#graph_data = graphParser.build_graph("graph.txt")
-#General_Search(graph_data, aStarSearch, {'h':11})
-#sortFunction([{'path': ['P','L', 'H', 'S'], 'h': '6.7'},{'path': ['A', 'H', 'S'], 'h': '10.8'} ,{'path': ['P','L', 'D', 'S'], 'h': '6.7'}
-#])
